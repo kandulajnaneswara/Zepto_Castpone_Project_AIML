@@ -1,74 +1,77 @@
-Install the below libraries before executing the .py file
+Data Pipeline Module
 
-1. pip install beautifulsoup4
-2. pip install requests
-3. pip install pandas
-4. pip install numpy
-5. pip install sqlite3
+This module (/data_pipeline) covers the scraping, cleaning, and database-loading stages of the Zepto capstone project. It scrapes book data from books.toscrape.com, cleans and type-converts the fields, loads the result into a normalized SQLite database, and runs a set of required SQL queries against it.
 
+Contents
+data_pipeline.py — single script containing the full pipeline: scraping → cleaning → currency conversion → SQLite schema creation → data insertion → SQL queries → pandas verification.
+books_toscrape.db — the SQLite database produced by running the script.
+output_file.csv — intermediate CSV of the raw scraped + cleaned data (saved before database loading).
+Install / Run Steps
+Install dependencies (listed in the root requirements.txt):
+bash
+   pip install -r requirements.txt
 
-Work flow:
-1. Assign the website's url address to "base_url" variable
-2. create a function "get_text" for a response object to get the web page's HTML content
-	a. Use try and except calls if any failure occurs while accessing the webpage
-	b. check the status of the response and raise an exception for HTTP errors
-	c. create beautiful soup object to parse HTML text with the help of html.parser
-	d. print the exceptions of the requested url as below:
-		HTTPError - if webpage status is 404 (Not Found) or 500 (Internal Server Error)
-		ConnectionError - if unable to connect to the server
-		Timeout - if server took too long to respond
-		RequestException - if any other request related error
-3. create a function "get_category_links" to find all categories listed on the webpage
-	a. the function should return the first 5 categories by default
-	b. get the webpage address, download the homepage, parse the text with beautifulsoup, stores the parsed HTML (in soup) from the function "get_text"
-	c. check if the webpage was downloaded else it should return an empty list.
-	d. search for every category link inside the sidebar (the sidebar contains all <a> tags)
-	e. create an empty list to store the results
-	f. loop the first 5 category links to extract the category_name, url(href attribute), create the full url (base_url + href) and append the information to the result list.
-	g. if there is no response from the webpage it crashes. So, to prevent the crashing we use exceptions
-		AtrributeError - if any expected element isn't found or doesn't contain expected HTML structure
-		KeyError - if an expected attribute like href is missing from <a> tag
-		Exception - if any unexpected error occurred.
-4. create a function "scrape_category" to scrape all books under category across pages
-	a. fetch all books listed on the current page
-	b. build a dictionary to store the extracted data
-	c. append the dictionary to a list
-	d. go to the next page if current page is not the last one
-		we use rsplit() because it splits from the right. split() uses left split by default
-	e. pause the scraper 0.5 sec before requesting the next page. 
-		This reduces the load on the website
-5. create a function "scrape_books" to gather book's information from multiple categories and combine them into a single Pandas DataFrame.
-	a. create an empty list to store every book from every category
-	b. get category names and links from the previous functions
-	c. check whether categories were found
-		if the list is empty, an empty DataFrame will be returned
-	d. loop through each category to get the category_name and url
-	e. print the current category
-	f. scrape all books in that category by using the previous function
-	g. add these books to the created empty list at the start of the function
-	h. convert the list into a Panda's DataFrame
-6. Save dataframe to excel file(.csv) 
-7. Try to run the workflow upto the dataframe
-	a. load the dataframe in "df" from the excel file
-	b. if df is empty, then print "no books were scraped"
-	c. else, print the total books scraped and no. of categories covered from the scrapped books
+Run the full pipeline:
+bash
+   python data_pipeline.py
 
-8. Fixed exchange rate
-	a. define fixed exchange rate
-9. EDA
-	a. clean price column (remove currency symbol, extra spaces and convert to float)
-	b. clean rating column (map the string ratings to numerical ratings)
-	c. clean availability column (valid value is (in stock & out of stock), else for other values its None)
-	d. apply cleaning functions discussed above on the original columns by creating independent copy of the dataframe
-	e. Handle missing values in the columns
-	f. Print the summary of the cleaning columns
-	g. convert currency and print the final dataframe
-10. SQLite3
-	a. create a file .db with a database path
-	b. create a normalized SQLite schema function
-	c. establish the connection to the database using ".connect()"
-	d. create a cursor object using ".cursor()"
-	e. execute multiple SQL statements with one go using ".executescript()". If one SQL statement execution, use ".execute()"
-	f. save changes using ".commit()"
-	g. create an exception to Undo changes if any error occurs to the database using ".rollback()"
- 
+This single script performs, in order:
+
+Scraping all books across the first 10 categories on books.toscrape.com, following pagination within each category
+Saving raw scraped data to output_file.csv
+Cleaning/type-converting fields and re-saving the cleaned data
+Creating the SQLite schema (categories, books tables) in books_toscrape.db
+Inserting the cleaned data into the database
+Running 6 SQL queries (SELECT/WHERE, ORDER BY, LIMIT, DISTINCT, BETWEEN, JOIN) and printing their output
+Running an additional JOIN query (top 10 rated books per category)
+Reading 2 query results back with pd.read_sql and reproducing the JOIN result independently with pd.merge, then comparing both for same results.
+
+All output (scrape progress, no. of rows, query results, and the SQL-vs-pandas comparision check) prints directly to the vscode output console.
+
+Database Schema
+
+Two tables, related by a primary/foreign key:
+
+sql
+CREATE TABLE categories (
+    category_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE books (
+    book_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+    title       TEXT NOT NULL,
+    price_gbp   REAL,
+    price_inr   REAL,
+    rating      INTEGER,
+    in_stock    INTEGER,
+    category_id INTEGER,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+Design Decisions made
+Scraping scope: first 10 categories, following "next page" pagination within each, to ensure comfortably more than the minimum required rows and categories.
+Field cleaning:
+price → stripped of the currency symbol and converted to price_gbp (float).
+star_rating text (One…Five) → mapped to an integer rating (1–5).
+availability text → parsed into a boolean in_stock.
+Handling unparseable rows:
+price_gbp and rating (numeric fields) → missing/unparseable values are median-imputed.
+in_stock (boolean field) → rows with unparseable availability text are dropped.
+Currency conversion: price_inr is computed using a fixed, project-defined baseline rate of 1 GBP = 105.50 INR. This is an artificial constant specified by the assignment, not a live or historical market rate — it requires no API call, no network access, and no date reference.
+Database regeneration: the script creates the schema with DROP TABLE IF EXISTS before creating fresh tables, so re-running data_pipeline.py from scratch always regenerates an identical database from the scraped source data — no manual database setup is required.
+Required SQL Queries
+
+The script executes and prints output for the following, collectively covering every required clause:
+
+SELECT / WHERE — in-stock books
+ORDER BY — books sorted by rating (descending)
+LIMIT — top 5 most expensive books (by INR price)
+DISTINCT — distinct category IDs present in the books table
+BETWEEN — books priced between 10 and 30 GBP
+JOIN — books joined with their category names, ordered by category then rating
+
+An additional JOIN query (top 10 rated books per category, using ROW_NUMBER() OVER (PARTITION BY ...)) is included for "top N per category" requirement.
+
+SQL vs. Pandas Verification
+
+Two of the query results above are read back into DataFrames using pd.read_sql(...). The JOIN query's result is separately reproduced using pd.merge(...) directly on the categories and books DataFrames (no SQL). Both are sorted identically and compared with .equals(...) to confirm they produce same outputs — the script prints True/False for this check in the console.
