@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
+import sqlite3
 import time
 from bs4 import BeautifulSoup as soup
 
@@ -15,18 +16,23 @@ def get_text(url):
         response.raise_for_status()
         # create beautiful soup object to parse HTML text with the help of html.parser
         return soup(response.text, "html.parser")
+    
     except requests.exceptions.HTTPError as e:
         print(f"HTTP error: {e}")
+
     except requests.exceptions.ConnectionError as e:
         print(f"Connection error: {e}")
+
     except requests.exceptions.Timeout as e:
         print(f"Request Timed out: {e}")
+
     except requests.exceptions.RequestException as e:
         print(f"Request failed: {e}")
+
     return None
 
 # Finding category names and its url's
-def get_category_links(n_categories = 5):
+def get_category_links(n_categories = 10):
     """Get first n_categories category names + url's from homepage sidebar."""
     try:
         soup = get_text(base_url)
@@ -128,7 +134,7 @@ def scrape_category(name, url):
     return books
 
 # Gather books from multiple categories & combine them into a Pandas DataFrame
-def scrape_books(n_categories=5):
+def scrape_books(n_categories=10):
     """Scrape books from the first n_categories and return a DataFrame."""
 
     # To store every book from every category
@@ -165,19 +171,51 @@ def scrape_books(n_categories=5):
         print(f"An unexpected error occurred: {e}")
         return pd.DataFrame()
 
-# Run the scraper
+# Save the DataFrame to excel.
 try:
-    df = scrape_books(n_categories=5)
+    csv = scrape_books(n_categories= 10).to_csv("output_file.csv", index = False)
+    print("File saved successfully")
 
-    # Check if the DataFrame is empty
-    if df.empty:
-        print("No books were scraped.")
-    else:
-        print(f"Total books scraped: {len(df)}")
-        print(f"Categories covered: {df['category'].nunique()}")
+except PermissionError as e:
+    print(f"Error: Permission denied {e}. Close the file if it's open in excel.")
 
-        # Display the first 5 rows
-        #print(df.head())
+except FileNotFoundError as e:
+    print(f"Error: {e}. The specified folder directory does not exist.")
+
+except Exception as e:
+    print(f"An Unexpected error occurred: {e}")
+
+# Run the scraper
+file_path = "output_file.csv"
+try:
+    try:
+        # Load the saved csv file 
+        df = pd.read_csv(file_path)
+        print("File loaded successfully")
+        # Check if the DataFrame is empty
+        if df.empty:
+            print("No books were scraped.")
+        else:
+            print(f"Total books scraped: {len(df)}")
+            print(f"Categories covered: {df['category'].nunique()}")
+
+            # Display the first 5 rows
+            #print(df.head())
+
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found. Check the file path.")
+
+    except pd.errors.EmptyDataError:
+        print("Error: The CSV file is blank or contains no data.")
+
+    except pd.errors.ParserError:
+        print("Error: The file is corrupted or poorly formatted (e.g., mismatched columns).")
+
+    except PermissionError:
+        print("Error: Permission denied. Close the file if it is open in another program.")
+
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 except KeyError as e:
     print(f"Missing expected column: {e}")
@@ -202,6 +240,7 @@ def clean_price(price_str):
     except ValueError as e:
         print(f"Error in Value: {e}")
         return np.nan
+    
     except AttributeError as e:
         print(f"Missing attribute: {e}")
         return np.nan
@@ -304,14 +343,311 @@ except Exception as e:
 
 # Currency conversion
 try:
-    df["price_inr"] = df["price_gbp"] * fixed_rate_gbp_to_inr
+    df["price_inr"] = (df["price_gbp"] * fixed_rate_gbp_to_inr).round(2)
 
 except Exception as e:
     print(f"Error while converting GBP to INR: {e}")
 
 # Print cleaned data
 try:
+    csv = df.to_csv("Final_output_file.csv", index = False)
+    print("File saved successfully")
     print(df.head())
+
+except PermissionError:
+    print("Error: Permission denied. Close the file if it is open in Excel.")
+
+except FileNotFoundError:
+    print("Error: The specified folder directory does not exist.")
 
 except Exception as e:
     print(f"Error while printing the DataFrame: {e}")
+
+# Database Path
+db_path = "books_toscrape.db"
+
+# Create a normalized SQLite schema 
+def create_schema(conn):
+    """Create a normailized database schema by dropping existing tables &
+       creating fresh categories and books tables."""
+
+    try:
+        # Connect to the database (creates file if it doesn't exist)
+        #conn = sqlite3.connect(db_path)
+        # create a cursor object
+        cur = conn.cursor()
+
+        # Execute multiple SQL statements 
+        cur.executescript("""
+        DROP TABLE IF EXISTS books;
+        DROP TABLE IF EXISTS categories;
+        
+        CREATE TABLE categories (category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                 category_name TEXT UNIQUE NOT NULL);
+                                 
+        CREATE TABLE books (book_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            title TEXT NOT NULL,
+                            price_gbp REAL,
+                            price_inr REAL,
+                            rating INTEGER,
+                            in_stock INTEGER,
+                            category_id INTEGER,
+                            FOREIGN KEY (category_id) REFERENCES categories(category_id));
+                            """)
+        # Save changes permanently
+        conn.commit()
+
+        print(f"Database schema created successfully")
+
+    except sqlite3.Error as e:
+        # Undo changes if any error occurs
+        conn.rollback()
+        print(f"SQLite Error: {e}")
+
+    except Exception as e:
+        # Handles any other unexpected error
+        print(f"Unexpected Error: {e}")
+
+# Insert data from Pandas dataframe into SQLite database.
+def populate_tables(conn, df):
+    """Populates the categories and books tables using data from the DataFrame"""
+
+    try:
+        # create cursor()
+        cur = conn.cursor()
+
+        # Insert unique categories
+        categories = df["category"].unique()
+
+        for cat in categories:
+            # Insert one category into one database
+            cur.execute("INSERT OR IGNORE INTO categories (category_name) VALUES (?)", (cat,))
+
+        # save inserted categories
+        conn.commit()
+
+        # Build category lookup dictionary
+        cur.execute("SELECT category_id, category_name FROM categories")
+
+        # create cat_lookup dictionary
+        cat_lookup = {}
+
+        # Fetch all rows from the database
+        rows = cur.fetchall()
+
+        # Loop through each row (store name as the key and cid as value)
+        for cid, name in rows:
+            cat_lookup[name] = cid
+
+        # Prepare book records
+        # create an empty list
+        rows = []
+
+        # Loop through each row in the dataframe
+        for _, row in df.iterrows():
+            # Get the required values from the current row
+            title = row["title"]
+            price_gbp = row["price_gbp"]
+            price_inr = row["price_inr"]
+            rating = int(row["rating"])
+            in_stock = int(row["in_stock"])
+            category_id = cat_lookup[row["category"]]
+
+            # create tuple with the above values
+            data = (title,
+                    price_gbp,
+                    price_inr,
+                    rating,
+                    in_stock,
+                    category_id,)
+            
+            # Append the tuple to the list
+            rows.append(data)
+
+        # Insert books (insert all rows together)
+        cur.executemany("""INSERT INTO books (title, price_gbp, price_inr, rating, in_stock, category_id)
+                        VALUES (?, ?, ?, ?, ?, ?)""", rows)
+
+        # save all books 
+        conn.commit()
+        print("Data inserted successfully")
+
+    except KeyError as e:
+        conn.rollback()
+        print(f"Missing DataFrame column: {e}")
+
+    except sqlite3.Error as e:
+        conn.rollback()
+        print(f"SQLite Error: {e}")
+
+    except Exception as e:
+        conn.rollback()
+        print(f"Unexpected Error: {e}")
+
+# SQL program execution
+try:
+    # Connect to the database (creates file if it doesn't exist)
+    conn = sqlite3.connect(db_path)
+    create_schema(conn)
+    populate_tables(conn, df)
+
+except sqlite3.Error as e:
+    print(f"Database Connection Error: {e}")
+
+except Exception as e:
+    print(f"Unexpected Error: {e}")
+
+
+# SQL Queries execution
+def run_query(conn, label, query, paramas = ()):
+    """Executes an SQL Query and Print the results"""
+
+    try:
+        print(f"\n-----   {label}   -----")
+        print(query)
+
+        # Create cursor
+        cur = conn.cursor()
+
+        # Execute SQL query
+        cur.execute(query, paramas)
+
+        # Fetch all records
+        results = cur.fetchall()
+
+        # Print each row
+        for row in results:
+            print(row)
+
+        return results
+
+    except sqlite3.Error as e:
+        print(f"SQLite Error while executing '{label}': {e}")
+        return []
+
+    except Exception as e:
+        print(f"Unexpected Error while executing '{label}': {e}")
+        return []
+
+# Execute queries
+try:
+    # SELECT / WHERE
+    q1 = """SELECT title, price_gbp, rating
+            FROM books
+            WHERE in_stock = 1;"""
+
+    run_query(conn, "Q1: SELECT --> in_stock books", q1)
+
+    # ORDER BY
+    q2 = """SELECT title, rating
+            FROM books
+            ORDER BY rating DESC;"""
+
+    run_query(conn, "Q2: ORDER BY --> Books by rating descending order", q2)
+
+    # 3. LIMIT
+    q3 = """SELECT title, price_inr
+            FROM books
+            ORDER BY price_inr DESC
+            LIMIT 5;"""
+
+    run_query(conn, "Q3: LIMIT --> Top 5 most expensive books", q3)
+
+    # 4. DISTINCT
+    q4 = """SELECT DISTINCT category_id
+            FROM books;"""
+
+    run_query(conn, "Q4: DISTINCT --> Unique category IDs", q4)
+
+    # 5. BETWEEN
+    q5 = """SELECT title, price_gbp
+            FROM books
+            WHERE price_gbp BETWEEN 10 AND 30;"""
+
+    run_query(conn, "Q5: BETWEEN --> Books priced between 10 and 30 GBP", q5)
+
+    # 6. JOIN
+    join_query = """SELECT c.category_name, b.title, b.rating
+                    FROM books b
+                    JOIN categories c ON b.category_id = c.category_id
+                    ORDER BY c.category_name, b.rating DESC;"""
+
+    join_results = run_query(conn, "Q6: JOIN --> Books with Category Names", join_query)
+
+except Exception as e:
+    print(f"Error while executing queries: {e}")
+
+# 10 highest rated books per category
+try:
+    q_top10_per_category = """SELECT category_name, title, rating 
+                              FROM (SELECT c.category_name AS category_name, b.title AS title, b.rating AS rating,
+                                    ROW_NUMBER() OVER (PARTITION BY c.category_id ORDER BY b.rating DESC) AS rn
+                                    FROM books b
+                                    JOIN categories c ON b.category_id = c.category_id)
+                              WHERE rn <= 10;"""
+
+    # Execute the query  
+    top_10_results = run_query(conn, "JOIN: top 10 rated books per category", q_top10_per_category)
+
+except sqlite3.Error as e:
+    print(f"SQLite Error while executing Top 10 query: {e}")
+
+except Exception as e:
+    print(f"Unexpected Error: {e}")
+
+
+# Read two query results back into DataFrame (pd.read_sql, pd.merge)
+try:
+    # Read query 1 results into DataFrame
+    df_instock = pd.read_sql(q1, conn)
+
+    print("Read query 1 back via pd.read_sql (Q1):")
+    print(df_instock.head())
+
+    # Read JOIN query result into DataFrame
+    df_join_sql = pd.read_sql(join_query, conn)
+
+    print("\nRead JOIN query back via pd.read_sql (JOIN Query):")
+    print(df_join_sql.head())
+
+    # Read complete categories & books tables
+    categories_df = pd.read_sql("SELECT * FROM categories", conn)
+
+    books_df = pd.read_sql("SELECT * FROM books", conn)
+
+    # Perform join using Pandas library
+    df_join_pandas = (books_df.merge(categories_df, on = "category_id", how = "inner")
+                      [["category_name", "title", "rating"]].sort_values(["category_name", "rating"],
+                                                                         ascending= [True, False]).reset_index(drop= True))
+
+    # Sort SQL join output
+    df_join_sql_sorted = (df_join_sql.sort_values(["category_name", "rating"], ascending= [True, False]).reset_index(drop= True))
+
+    print("\nSQL JOIN RESULT\n")
+    print(df_join_sql_sorted.head())
+
+    print("\nPANDAS MERGE RESULT\n")
+    print(df_join_pandas.head())
+
+    # Compare both DataFrames
+    compare_df = df_join_sql_sorted.equals(df_join_pandas)
+
+    print(f"\nSQL JOIN and PANDAS MERGE produce equivalent output: {compare_df}")
+
+except pd.errors.DatabaseError as e:
+    print(f"Pandas Database Error: {e}")
+
+except sqlite3.Error as e:
+    print(f"SQLite Error: {e}")
+
+except KeyError as e:
+    print(f"Missing Column Error: {e}")
+
+except Exception as e:
+    print(f"Unexpected Error: {e}")
+
+finally:
+    # Close the database connection now that all queries/comparisions are done
+    if "conn" in locals():
+        conn.close()
+        print("Database connection closed")
