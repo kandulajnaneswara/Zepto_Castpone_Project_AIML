@@ -9,7 +9,7 @@ from sklearn.preprocessing import StandardScaler
 # Task 1: Load, profile and save the titanic dataset
 # --------------------------------------------------------------
 print("=" * 50)
-print("Load and Profile the 'titanic' dataset")
+print("Task 1: Load and Profile the 'titanic' dataset")
 print("=" * 50)
 
 try:
@@ -39,7 +39,7 @@ except Exception as e:
 # Task 2: Handling missing values
 # --------------------------------------------------------------
 print("=" * 50)
-print("Handling missing values")
+print("Task 2: Handling missing values")
 print("=" * 50)
 
 try:
@@ -72,7 +72,7 @@ except Exception as e:
 # Task 3: Univariate Analysis
 # --------------------------------------------------------------
 print("=" * 50)
-print("Univariate Analysis")
+print("Task 3: Univariate Analysis")
 print("=" * 50)
 
 try:
@@ -165,7 +165,7 @@ except Exception as e:
 # Task 4: Bivariate Analysis 
 # --------------------------------------------------------------
 print("\n" + "=" * 50)
-print("Bivariate Analysis")
+print("Task 4: Bivariate Analysis")
 print("=" * 50)
 
 try:
@@ -296,7 +296,7 @@ except Exception as e:
 # Task 5: Multivariate "Data Story"
 # --------------------------------------------------------------
 print("=" * 50)
-print("Multivariate Data story")
+print("Task 5: Multivariate Data story")
 print("=" * 50)
 
 try:
@@ -388,7 +388,7 @@ except Exception as e:
 # Task 6: Exploratory Checks
 # --------------------------------------------------------------
 print("=" * 50)
-print("Exploratory Checks")
+print("Task 6: Exploratory Checks")
 print("=" * 50)
 
 try:
