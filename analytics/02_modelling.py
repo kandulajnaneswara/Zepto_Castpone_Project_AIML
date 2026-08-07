@@ -14,6 +14,7 @@ from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, r
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
+from imblearn.over_sampling import SMOTE
 
 
 
@@ -37,8 +38,9 @@ numerical_features = ["pclass", "age", "sibsp", "parch", "fare"]
 # --------------------------------------------------------------
 # Task 7: Startified train - test split
 # --------------------------------------------------------------
+print()
 print("=" * 50)
-print("Stratified train - test split")
+print("Task 7: Stratified train - test split")
 print("=" * 50)
 
 try:
@@ -69,8 +71,9 @@ except Exception as e:
 # --------------------------------------------------------------
 # Task 8: Preprocessing - fit on training data only (ColumnTransformer)
 # --------------------------------------------------------------
+print()
 print("=" * 50)
-print("Preprocessing - fit on train data only")
+print("Task 8: Preprocessing - fit on train data only")
 print("=" * 50)
 
 try:
@@ -89,6 +92,7 @@ try:
     # Combine both numeric and category pipelines with ColumnTransformer
     preprocessor = ColumnTransformer(transformers= [("numeric", numeric_pipeline, numerical_features),
                                                     ("category", category_pipeline, categorical_features)])
+    print("Preprocessing on training dataset is completed.")
 
 except Exception as e:
     print(f"Error: Task 8 (Preprocessing - fit on Train data only) failed {e}")
@@ -97,8 +101,9 @@ except Exception as e:
 # --------------------------------------------------------------
 # Task 9: Train three classifiers on identical split
 # -------------------------------------------------------------- 
+print()
 print("=" * 50)
-print("Train three classifiers on identical split")
+print("Task 9: Train three classifiers on identical split")
 print("=" * 50)
 
 try:
@@ -152,8 +157,9 @@ except Exception as e:
 # --------------------------------------------------------------
 # Task 10: Evaluate all three models 
 # --------------------------------------------------------------
+print()
 print("=" * 50)
-print("Evaluate all the three models")
+print("Task 10: Evaluate all the three models")
 print("=" * 50)
 
 try:
@@ -225,3 +231,288 @@ try:
 
 except Exception as e:
     print(f"Error: Task 10 (Evaluate all the three models) failed {e}")
+
+# --------------------------------------------------------------
+# Task 11: Imbalance handling comparision (baseline vs class_weight vs SMOTE)
+# --------------------------------------------------------------
+print()
+print("=" * 50)
+print("Task 11: Imbalance handling comparision (baseline vs class_weight vs SMOTE)")
+print("=" * 50)
+
+try:
+    # Display the class distribution
+    print("Class distribution for training set: ")
+    print(y_train.value_counts())
+
+    # Create a preprocessing pipeline
+    imablance_preprocessor = ColumnTransformer(transformers= [("numeric", Pipeline(steps= [("imputer", SimpleImputer(strategy= "median")),
+                                                                                           ("scaler", StandardScaler())]),
+                                                                                    numerical_features),
+                                                            ("category", Pipeline(steps= [("imputer", SimpleImputer(strategy= "most_frequent")),
+                                                                                          ("onehot", OneHotEncoder(handle_unknown= "ignore"))]),
+                                                                                    categorical_features)])
+    # Fit_transform the preprocessing on training data
+    X_train_proc = imablance_preprocessor.fit_transform(X_train)
+    # Transform the test data
+    X_test_proc = imablance_preprocessor.transform(X_test)
+
+    # Create list to store results
+    imbalance_results = []
+
+    # Strategy A: Baseline (no imbalance handling)
+    # Create a baseline model
+    baseline = LogisticRegression(max_iter= 1000, random_state= 42)
+    # Train the baseline model
+    baseline.fit(X_train_proc, y_train)
+    # Predict test data
+    pred_baseline = baseline.predict(X_test_proc)
+    # Save evaluation metrics
+    imbalance_results.append({"Strategy": "Baseline (no imbalance handling)",
+                              "Precision score": precision_score(y_test, pred_baseline),
+                              "Recall score": recall_score(y_test, pred_baseline),
+                              "F1 score": f1_score(y_test, pred_baseline)})
+
+
+    # Strategy B: class_weight = "balanced"
+    # Create the model
+    balanced = LogisticRegression(max_iter= 1000, class_weight= "balanced", random_state= 42)
+
+    # Train the model
+    balanced.fit(X_train_proc, y_train)
+    # Predict the test data
+    pre_balanced = balanced.predict(X_test_proc)
+    # Save evaluation metrics
+    imbalance_results.append({"Strategy": "class_weight = 'balanced'",
+                              "Precision score": precision_score(y_test, pre_balanced),
+                              "Recall score": recall_score(y_test, pre_balanced),
+                              "F1 score": f1_score(y_test, pre_balanced)})
+
+
+    # Strategy C: SMOTE - applied only to the training data to avoid leakages
+    # Create a SMOTE object
+    smote = SMOTE(random_state= 42)
+    # Apply SMOTE to the training data
+    X_train_smote, y_train_smote = smote.fit_resample(X_train_proc, y_train)
+    # Create SMOTE model
+    smote_model = LogisticRegression(max_iter= 1000, random_state= 42)
+    # Train on the resampled data
+    smote_model.fit(X_train_smote, y_train_smote)
+    # Predict the original test dataset
+    pred_smote = smote_model.predict(X_test_proc)
+    # Save evaluation metrics
+    imbalance_results.append({"Strategy": "SMOTE (Train dataset only)",
+                              "Precision score": precision_score(y_test, pred_smote),
+                              "Recall score": recall_score(y_test, pred_smote),
+                              "F1 score": f1_score(y_test, pred_smote)})
+
+
+    # Create a comparision table for the three strategies
+    imbalance_df = pd.DataFrame(imbalance_results).set_index("Strategy")
+
+    # Print the imbalance dataframe
+    print(f"\n-----   Comparision of Imbalanced Strategies   -----")
+    print(f"{imbalance_df.round(3)}")
+
+    # Finding Best strategy
+    best_strategy = imbalance_df["F1"].idxmax()
+    print(f"Conclusion: '{best_strategy}' produced the highest F1 score ({imbalance_df.loc[best_strategy, 'F1']:.3f}) among the three strategies.")
+
+except Exception as e:
+    print(f"Error: Task 11 (Imbalance handling comparision) failed {e}")
+
+
+# --------------------------------------------------------------
+# Task 12: Hyperparameter Tuning (GridSearchCV) 
+# --------------------------------------------------------------
+print()
+print("=" * 50)
+print("Task 12: Hyperparameter Tuning (GridSearchCV)")
+print("=" * 50)
+
+try:
+    # Create a Random Forest pipeline
+    rf_pipeline = Pipeline(steps= [("prepocessor", preprocessor),
+                                   ("classifier", RandomForestClassifier(oob_score= True, random_state= 42, bootstrap= True))])
+
+    # Define Hyperparameter grid
+    param_grid = {"classifier__n_estimators": [100, 200, 300],
+                  "classifier__max_depth": [None, 5, 10],
+                  "classifier__max_features": ["sqrt", "log2"]}
+
+    # Create GridSearchCV
+    grid_search = GridSearchCV(rf_pipeline, param_grid, cv= 5, scoring= "f1", n_jobs= -1)
+    # Train the GridSearchCV
+    grid_search.fit(X_train, y_train)
+    # Print the best parameters and cross-validation score
+    best_params = grid_search.best_params_
+    grid_search_f1 = grid_search.best_score_
+
+    print(f"Best Parameters: {best_params}")
+    print(f"Best GridSearchCV F1 score: {grid_search_f1:.3f}")
+
+    # Retrieve the best model
+    best_rf_pipeline = grid_search.best_estimator_
+    # Extract OOB score
+    oob_score = best_rf_pipeline.named_steps["classifier"].oob_score_
+    print(f"OOB Score (best estimator, oob_score = True): {oob_score:.3f}")
+
+except Exception as e:
+    print(f"Error: Task 12 Hyperparameter Tuning (GridSearchCV) failed {e}")
+
+# --------------------------------------------------------------
+# Task 13: Regression side-task
+# --------------------------------------------------------------
+print()
+print("=" * 50)
+print("Task 13: Regression task - predict fare")
+print("=" * 50)
+
+try:
+    # Define regression features
+    Reg_Features = ["pclass", "sex", "age", "sibsp", "parch", "embarked"]
+    # Separate numerical and categorical columns
+    Reg_Numeric = ["pclass", "age", "sibsp", "parch"]
+    Reg_Categorical = ["sex", "embarked"]
+
+    # Create input data (features matrix)
+    X_reg  =df[Reg_Features].copy()
+    # Create target variable
+    y_reg = df["fare"].copy()
+    # Splitting into Train and Test data
+    X_reg_train, X_reg_test, y_reg_train, y_reg_test = train_test_split(X_reg, y_reg, test_size= 0.2, random_state= 42)
+    # Create preprocessing pipeline
+    reg_preprocessor = ColumnTransformer(transformers= [("numeric", Pipeline(steps= [("imputer", SimpleImputer(strategy= "median")),
+                                                                                     ("scaler", StandardScaler())]),
+                                                                            Reg_Numeric),
+                                                        ("category", Pipeline(steps= [("imputer", SimpleImputer(strategy= "most_frequent")),
+                                                                                      ("onehot", OneHotEncoder(handle_unknown= "ignore")),]),
+                                                                            Reg_Categorical)])
+    # Create Regression pipeline
+    reg_pipeline = Pipeline(steps= [("preprocessor", reg_preprocessor),
+                                    ("regressor", LinearRegression())])
+
+    # Train the Regression model
+    reg_pipeline.fit(X_reg_train, y_reg_train)
+    # Predict fare
+    y_reg_pred = reg_pipeline.predict(X_reg_test)
+
+    # Calculating Mean Absolute Error (MAE)
+    mae = mean_absolute_error(y_reg_test, y_reg_pred)
+    # Calculating Root Mean Squared Error (RMSE)
+    rmse = np.sqrt(mean_squared_error(y_reg_test, y_reg_pred))
+    # Calculating Coefficient of Determination (R2)
+    r2 = r2_score(y_reg_test, y_reg_pred)
+
+    # No. of test observations
+    n = len(y_reg_test)
+    # Counting the transformed features
+    p = reg_pipeline.named_steps["preprocessor"].transform(X_reg_test).shape[1]
+    # Calculating Adjusted R2
+    adjusted_r2 = 1 - (1 - r2) * (n - 1) / (n - p - 1)
+
+    # Print evaluation metrics
+    print(f"MAE: {mae:.3f}")
+    print(f"RMSE: {rmse:.3f}")
+    print(f"R2: {r2:.3f}")
+    print(f"Adjusted R2: {adjusted_r2:.3f}")
+
+    # Compute residuals
+    residuals = y_reg_test - y_reg_pred
+
+    # Creating Residual Plot
+    # Create the figure
+    plt.figure(figsize= (7, 5))
+    # Create scatter plot
+    plt.scatter(y_reg_pred, residuals, alpha= 0.6)
+    # Draw zero error line
+    plt.axhline(0, color = 'red', linestyle= "--")
+    # Label X axis
+    plt.xlabel("Predicted Fare")
+    # Label y axis
+    plt.ylabel("Residual (Actual - Predicted)")
+    # Add title
+    plt.title("Residual Plot - Fare (Linear Regression)")
+    # Adjust the layout
+    plt.tight_layout()
+    # Save the figure
+    plt.savefig("residual_plot.png", dpi= 120)
+    # Close the figure
+    plt.close()
+    print("'residual_plot.png' saved successfully")
+
+    # Finding the median prediction
+    pred_median = np.median(y_reg_pred)
+    # Computing residual variability range
+    residual_low = residuals[y_reg_pred < pred_median]
+    residual_high = residuals[y_reg_pred >= pred_median]
+    # Standard deviation of the residual_low
+    residual_std_low = residual_low.std()
+    # Standard deviation of the residual_high
+    residual_std_high = residual_high.std()
+    # Compare both the residual values
+    print(f"\nResidual standard deviation (low predicted fare): {residual_std_low:.2f}")
+    print(f"Residual standard deviation (high predicted fare): {residual_std_high:.2f}")
+
+except Exception as e:
+    print(f"Error: Task 13 (Regression task - predict fare) failed {e}")
+
+# --------------------------------------------------------------
+# Task 14: Model Comparision table
+# --------------------------------------------------------------
+print()
+print("=" * 50)
+print("Task 14: Model Comparision Table")
+print("=" * 50)
+
+try:
+    print("\n-----   Classification models   -----")
+    # Print comparision table
+    print(evaluation_df.round(3))
+    # Create a regression summary table
+    regression_summary = pd.DataFrame([{"MAE": mae,
+                                        "RMSE": rmse,
+                                        "R2": r2,
+                                        "Adjusted R2": adjusted_r2}], index= ["Linear Regression (fare)"])
+
+    print("\n-----   Regression Model Summary   -----")
+    # Print the regression table
+    print(regression_summary.round(3))
+    # Best classifier
+    best_classifier = evaluation_df["F1 score"].idxmax()
+    # Retrieve models metrics
+    best_row = evaluation_df.loc[best_classifier]
+    print(f"\nRecommendation: of the three classifiers, '{best_classifier}' is the strongest classifier to deploy"
+          f"with F1 = {best_row['F1 score']:.3f}, accuracy = {best_row['Accuracy score']:.3f} and AUC = {best_row['AUC score']:.3f} on the test set."
+          f"It balances the precision {best_row['Precision score']:.3f} and recall {best_row["Recall score"]:.3f} better than the alternatives.")
+
+except Exception as e:
+    print(f"Error: Task 14 (Model comparision table) failed {e}")
+
+# --------------------------------------------------------------
+# Task 15: Save and Reload full pipeline (preprocessing + estimator)
+# --------------------------------------------------------------
+print()
+print("=" * 50)
+print("Task 15: Save and Reload full pipeline")
+print("=" * 50)
+
+try:
+    # Selecting best classifier by F1 score
+    full_pipeline = training_models[best_classifier]
+    # Save the pipeline
+    joblib.dump(full_pipeline, "titanic_best_pipeline.joblib")
+    print(f"Saved Full pipeline ('{best_classifier}') to 'titanic_best_pipeline.joblib' successfully")
+    # Reload the saved pipeline
+    reloaded_pipeline = joblib.load("titanic_best_pipeline.joblib")
+    # Select the raw sample data
+    sample_data = X_test.iloc[:5]
+    # Predict using Original full pipeline
+    original_pred = full_pipeline.predict(sample_data)
+    # Predict using reloaded pipeline
+    reloaded_pred = reloaded_pipeline.predict(sample_data)
+    # Compare both predictions
+    print(f"Prediction match: {np.array_equal(original_pred, reloaded_pred)}")
+
+except Exception as e:
+    print(f"Error: Task 15 (Save and reload full pipeline) failed {e}")
