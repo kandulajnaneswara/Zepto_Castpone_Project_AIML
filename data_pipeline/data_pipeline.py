@@ -224,8 +224,8 @@ except Exception as e:
     print(f"An unexpected error occurred: {e}")
 
 
-# Fixed exchange rate (GBP to INR) as on 02-Aug-2026
-fixed_rate_gbp_to_inr = 128.61
+# Fixed exchange rate (GBP to INR) - defined in the requirement
+fixed_rate_gbp_to_inr = 105.50
 
 # To clean the price column
 def clean_price(price_str):
