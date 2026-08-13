@@ -221,9 +221,9 @@ Saved Model Pipeline
 
 | Model | Accuracy | Precision | Recall | F1 | AUC |
 |---|---:|---:|---:|---:|---:|
-| Logistic Regression | 0.8090 | 0.7833 | 0.6912 | 0.7344 | 0.8610 |
-| Decision Tree | 0.7697 | 0.6901 | 0.7206 | 0.7050 | 0.7541 |
-| Random Forest | 0.8202 | 0.7812 | 0.7353 | 0.7576 | 0.8179 |
+| Logistic Regression | 0.781 | 0.754 | 0.632 | 0.688 | 0.753 |
+| Decision Tree | 0.781 | 0.723 | 0.691 | 0.707 | 0.764 |
+| Random Forest | 0.787 | 0.742 | 0.676 | 0.708 | 0.766 |
 
 The documented analysis identifies Random Forest as the strongest candidate among the three classifiers.
 
@@ -231,7 +231,7 @@ The documented analysis identifies Random Forest as the strongest candidate amon
 
 | Model | MAE | RMSE | R² | Adjusted R² |
 |---|---:|---:|---:|---:|
-| Linear Regression (fare) | 21.14 | 41.75 | 0.3468 | 0.3118 |
+| Linear Regression (fare) | 23.781 | 47.835 | 0.142 | 0.096 |
 
 ### Visual Outputs
 
