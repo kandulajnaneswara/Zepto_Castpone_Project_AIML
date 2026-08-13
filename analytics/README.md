@@ -176,15 +176,20 @@ The pclass/fare relationship is expected — fare is largely a proxy for cabin c
 
 Five charts build a coherent survival narrative:
 
-**Class × sex bar chart:** women survived at far higher rates than men in every class, and the gap holds across all three classes, though survival for both sexes declines from 1st to 3rd class.
+**Class vs sex (bar chart):** 
+- women survived at far higher rates than men in every class, and the gap holds across all three classes, though survival for both sexes declines from 1st to 3rd class.
 
-**Age × survival box plot:** survivors skew slightly younger, consistent with children being prioritized, though the distributions overlap substantially — age alone is a weak predictor.
+**Age vs survival (box plot):** 
+- survivors skew slightly younger, consistent with children being prioritized, though the distributions overlap substantially — age alone is a weak predictor.
 
-**Fare × age scatter (colored by survival):** survivors concentrate at higher fare levels across most ages, reinforcing that fare (as a proxy for class/cabin location) tracks with survival more clearly than age.
+**Fare vs age (scatter plot) - colored by survival:** 
+- survivors concentrate at higher fare levels across most ages, reinforcing that fare (as a proxy for class/cabin location) tracks with survival more clearly than age.
 
-**Pair plot:** confirms the story holistically — survivors cluster toward lower pclass and higher fare, while age shows weaker, noisier separation between outcome groups.
+**Pair plot:** 
+- confirms the story holistically — survivors cluster toward lower pclass and higher fare, while age shows weaker, noisier separation between outcome groups.
 
-**Overall conclusion:** class and fare are the dominant survival signals in this dataset, with sex compounding strongly on top of them; age contributes only a weak, secondary signal.
+**Overall conclusion:** 
+- class and fare are the dominant survival signals in this dataset, with sex compounding strongly on top of them; age contributes only a weak, secondary signal.
 
 ## Exploratory standardization check (Task 6)
 
@@ -193,11 +198,13 @@ Z-score standardization (z = (x − mean) / std) was applied to age and fare as 
 
 | Score | age (before) | age (after) | fare (before) | fare (after) |
 | --- | --- | --- | --- | --- |
-mean	| 29.32 | 0.0000 | 32.10 |	0.0000 |
-std	| 12.98 | 1.0006 | 49.70 | 1.0006 |
+| mean	| 29.32 | 0.0000 | 32.10 |	0.0000 |
+| std	| 12.98 | 1.0006 | 49.70 | 1.0006 |
 
 
-Confirms the transform behaves as expected. This does not feed into the modeling pipeline — Part B performs its own train-only scaling (Task 8) to avoid leaking full-dataset statistics into the train/test split.
+
+## Part B performs its own train-only scaling (Task 8) 
+- to avoid leaking full-dataset statistics into the train/test split.
 
 ## Train/test split (Task 7)
 
@@ -216,7 +223,8 @@ Built as a ColumnTransformer (median-impute + StandardScaler for numeric feature
 | Logistic Regression | 0.781 | 0.754 | 0.632 | 0.688 | 0.753 |
 | Decision Tree | 0.781 | 0.723 | 0.691 | 0.707 | 0.764 |
 | Random Forest | 0.787 | 0.742 | 0.676 | 0.708 | 0.766 |
-Imbalance Handling Comparison (Task 11)
+
+## Imbalance Handling Comparison (Task 11)
 
 
 Compared on Logistic Regression, train-fold class balance: 439 not-survived vs. 272 survived.
@@ -303,11 +311,11 @@ The module produces multiple analytical charts, including:
   
 - Correlation heatmap
 
-  <img width="520" height="400" alt="Correlation_Heatmap" src="https://github.com/user-attachments/assets/13bd2b24-7f29-446c-8ba3-8bbdd7f7e578" />
-  
+  <img width="520" height="400" alt="Correlation_Heatmap" src="https://github.com/user-attachments/assets/c355f676-1f88-4e3c-aee0-e6315687542b" />
+
 - Survival rate by class and sex
 
-  <img width="520" height="400" alt="Survival_rate_by_pclass_and_sex" src="https://github.com/user-attachments/assets/51c37d91-742e-485a-9e66-3e10fd827272" />
+  <img width="520" height="400" alt="Survival_rate_by_pclass_and_sex" src="https://github.com/user-attachments/assets/fe201365-5cac-4dd8-90de-42fb96593f6a" />
   
 - Age distribution by survival outcome
   
@@ -319,7 +327,7 @@ The module produces multiple analytical charts, including:
   
 - Pair plot
 
-  <img width="664" height="580" alt="pairplot" src="https://github.com/user-attachments/assets/cabc9fb8-2413-46f1-a742-83d45e19e527" />
+  <img width="664" height="600" alt="pairplot" src="https://github.com/user-attachments/assets/d1cbd53d-43aa-40bc-8577-6dfb56267667" />
 
 - Standardization before/after comparison
 
