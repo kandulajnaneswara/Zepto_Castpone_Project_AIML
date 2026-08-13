@@ -13,9 +13,9 @@ each incoming query through a LangGraph pipeline, retrieves grounded context
 when needed, and returns a structured, schema-validated JSON answer via a
 FastAPI endpoint.
 
-## Project Overview
+## Overview
 
-This module demonstrates an end-to-end offline-gradable Retrieval-Augmented Generation (RAG) workflow for Zepto customer support.
+Support Assistant module demonstrates an end-to-end offline-gradable Retrieval-Augmented Generation (RAG) workflow for Zepto customer support.
 
 ### Key Technologies
 
@@ -53,15 +53,21 @@ Grounded Answer
 
 ```
 support_assistant/
-├── docs/                  8 policy documents (doc_01.txt ... doc_08.txt)
-├── ingest.py              Loads, chunks, embeds docs -> stores in ChromaDB
-├── schemas.py             Pydantic request/response models
-├── prompt_template.py     Structured prompt (role-context-task-format-length)
-├── graph.py                LangGraph StateGraph: 3 nodes + conditional edge
-├── main.py                FastAPI app (POST /ask)
-├── requirements.txt       Module dependencies
-├── Dockerfile              Container build for the FastAPI app
-└── README.md               This file
+├── docs/                              8 policy documents (doc_01.txt ... doc_08.txt)
+├── ingest.py                          Loads, chunks, embeds docs -> stores in ChromaDB
+├── schemas.py                         Pydantic request/response models
+├── prompt_template.py                 Structured prompt (role-context-task-format-length)
+├── graph.py                           LangGraph StateGraph: 3 nodes + conditional edge
+├── main.py                            FastAPI app (POST /ask)
+├── requirements.txt                   Module dependencies
+├── Dockerfile                         Container build for the FastAPI app
+├── FastAPI_UI.png                     Zepto Support Assistant FastAPI User Interface(UI)
+├── Localhost_URL_JSON_response.png    Pretty print JSON response of Localhost URL
+├── query_1.png                        AskRequest and AskResponse of Query 1 in POST
+├── query_2.png                        AskRequest and AskResponse of Query 2 in POST
+├── query_3.png                        AskRequest and AskResponse of Query 3 in POST
+├── Uvicorn_terminal_window.png        Uvicorn server process terminal output
+└── README.md                          
 ```
 
 `chromadb/` (the persisted vector store) is created automatically the
@@ -298,6 +304,28 @@ functions (`classify_intent_with_llm`, `call_actual_llm_with_validation`,
 Module output screenshots are shown as below:
 
 - Localhost URL's JSON response
+  
+  <img width="520" height="218" alt="Localhost_URL_JSON_response" src="https://github.com/user-attachments/assets/b8d006cb-5899-4df8-bcc4-53dce359d681" />
+
 - Support assistant's FastAPI UI
+  
+  <img width="1500" height="773" alt="FastAPI_UI" src="https://github.com/user-attachments/assets/6df3d576-470f-4fb5-aa8e-0bc3840c3cf7" />
+
 - AskRequest & AskResponse (for query 1, query 2 and query 3)
+
+  **query 1**
+  
+  <img width="620" height="688" alt="query_1" src="https://github.com/user-attachments/assets/bf04c7ae-dfde-4725-8ef0-86a27f5bac30" />
+
+  **query 2**
+  
+  <img width="620" height="688" alt="query_2" src="https://github.com/user-attachments/assets/b9f847f6-b4af-4672-b8b8-f9967ceb16cd" />
+
+  **query 3**
+  
+  <img width="620" height="688" alt="query_3" src="https://github.com/user-attachments/assets/cde6df5a-a39c-421c-a6b4-be74dd1a7c15" />
+
 - Uvicorn server process terminal window output(Output while running the main.py file)
+  
+  <img width="1001" height="331" alt="Uvicorn_terminal_window" src="https://github.com/user-attachments/assets/0ecc9f6a-8552-48d0-afec-ed9d040905a6" />
+
