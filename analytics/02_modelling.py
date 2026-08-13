@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import joblib
+from pathlib import Path
 
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -20,7 +21,8 @@ from imblearn.over_sampling import SMOTE
 
 # Part - B: Predictive modeling, continuing from the cleaned data
 # Load the clean Dataframe "titanic_clean.csv" obtained in 01_eda.py
-df = pd.read_csv("titanic_clean.csv")
+base_dir = Path(__file__).resolve().parent
+df = pd.read_csv(base_dir/"output_files"/"titanic_clean.csv")
 print(f"Successfully loaded 'titanic_clean.csv':\nTotal rows: {df.shape[0]}\nTotal columns: {df.shape[1]}")
 
 # Selecting the features and Target for the model
@@ -144,7 +146,7 @@ try:
     # Adjust layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("decision_tree_plot.png", dpi= 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"decision_tree_plot.png", dpi= 120)
     # Close the figure
     plt.close()
     print("'decision_tree_plot.png' saved successfully")
@@ -219,7 +221,7 @@ try:
     # Adjust layout space
     plt.tight_layout()
     # Save the figure
-    plt.savefig("roc_curves.png", dpi= 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"roc_curves.png", dpi= 120)
     # Close the figure
     plt.close()
     print("'roc_curves.png' saved successfully")
@@ -315,8 +317,8 @@ try:
     print(f"{imbalance_df.round(3)}")
 
     # Finding Best strategy
-    best_strategy = imbalance_df["F1"].idxmax()
-    print(f"Conclusion: '{best_strategy}' produced the highest F1 score ({imbalance_df.loc[best_strategy, 'F1']:.3f}) among the three strategies.")
+    best_strategy = imbalance_df["F1 score"].idxmax()
+    print(f"Conclusion: '{best_strategy}' produced the highest F1 score ({imbalance_df.loc[best_strategy, 'F1 score']:.3f}) among the three strategies.")
 
 except Exception as e:
     print(f"Error: Task 11 (Imbalance handling comparision) failed {e}")
@@ -436,7 +438,7 @@ try:
     # Adjust the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("residual_plot.png", dpi= 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"residual_plot.png", dpi= 120)
     # Close the figure
     plt.close()
     print("'residual_plot.png' saved successfully")

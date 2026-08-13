@@ -116,30 +116,75 @@ based on measured percentages:
 | deck | 77.22% | Encoded as its own "Unknown" category (not dropped) | Imputing a cabin deck at this rate would be almost entirely fabricated, but deck plausibly correlates with class/survival, so an informative "missing" category preserves that signal rather than discarding the column. |
 | age | 19.87% | Median-imputed | Falls in the 5–30% band; median is robust to outliers and keeps the numeric feature usable. |
 | embarked | 0.22% | Rows dropped | Under 5% — dropping of rows is safe. |
+| embark_town |	0.22% |	Rows dropped | Under 5% — dropping of rows is safe.|
 
 
-embark_town	0.22%	Rows dropped    Under 5% — dropping of rows is safe.
-Outlier and skewness findings (Task 3)
-Age: 65 IQR outliers (bounds: [2.50, 54.50]).
-Fare: 114 IQR outliers (bounds: [-26.76, 65.66]).
-Fare — mean 32.10, median 14.45, mode 8.05. Since mean > median > mode, fare is right-skewed: a small number of very high fares pull the mean upward relative to the bulk of lower-fare passengers.
-Bivariate findings (Task 4)
-Survival rate by sex: male 18.9%, female 74.0%.
-Survival rate by pclass: Class 1 = 62.6%, Class 2 = 47.3%, Class 3 = 24.2%.
-Survival rate by sex + pclass: female 1st class = 96.7%, female 2nd = 92.1%, female 3rd = 50.0%; male 1st = 36.9%, male 2nd = 15.7%, male 3rd = 13.5%.
-Correlation heatmap (6 columns: survived, pclass, age, sibsp, parch, fare). Top 2 strongest correlations: pclass ↔ fare (r = −0.548), then sibsp ↔ parch (r = 0.415). The pclass/fare relationship is expected — fare is largely a proxy for cabin class. The sibsp/parch relationship reflects that passengers traveling with siblings/spouses were also more likely to be traveling with parents/children (family groups).
+## Outlier and skewness findings (Task 3)
 
 
-Multivariate data story (Task 5)
+| Column outliers | IQR Limits |
+| --- | --- | 
+| Age: 65 | IQR outliers (bounds: [2.50, 54.50]). |
+| Fare: 114 | IQR outliers (bounds: [-26.76, 65.66]). |
+
+
+Fare — mean: 32.10, median: 14.45, mode: 8.05. 
+- Since mean > median > mode
+- fare is right-skewed: a small number of very high fares pull the mean upward relative to the bulk of lower-fare passengers.
+
+
+## Bivariate findings (Task 4)
+
+**Survival rate by sex:**
+- male 18.9%
+- female 74.0%.
+
+**Survival rate by pclass:**
+- Class 1 = 62.6%
+- Class 2 = 47.3%
+- Class 3 = 24.2%.
+
+**Survival rate by sex and pclass:** 
+- female 1st class = 96.7%
+- female 2nd class = 92.1%
+- female 3rd class = 50.0%
+- male 1st class = 36.9%
+- male 2nd class = 15.7%
+- male 3rd class = 13.5%.
+
+
+**Correlation heatmap (6 columns: survived, pclass, age, sibsp, parch, fare)** 
+
+| Columns | survived | pclass | age | sibsp | parch | fare |
+| --- | --- | --- | --- | --- | --- | --- |
+| survived | 1.000 | -0.336 | -0.070 | -0.034 | 0.083 | 0.255 |
+| pclass | -0.336 | 1.000 | -0.337 | 0.082 | 0.017 | -0.548 |
+| age | -0.070 | -0.337 | 1.000 | -0.233 | -0.171 | 0.094 |
+| sibsp | -0.034 | 0.082 | -0.233 | 1.000 | 0.415 | 0.161 |
+| parch | 0.083 | 0.017 | -0.171 | 0.415 | 1.000 | 0.218 |
+| fare | 0.255 | -0.548 | 0.094 | 0.161 | 0.218 | 1.000 |
+
+**Top 2 strongest correlations:**
+
+- pclass ↔ fare (r = −0.548)
+- sibsp ↔ parch (r = 0.415). 
+
+The pclass/fare relationship is expected — fare is largely a proxy for cabin class. The sibsp/parch relationship reflects that passengers traveling with siblings/spouses were also more likely to be traveling with parents/children (family groups).
+
+
+### Multivariate data story (Task 5)
 
 Five charts build a coherent survival narrative:
 
-Class × sex bar chart: women survived at far higher rates than men in every class, and the gap holds across all three classes, though survival for both sexes declines from 1st to 3rd class.
-Age × survival box plot: survivors skew slightly younger, consistent with children being prioritized, though the distributions overlap substantially — age alone is a weak predictor.
-Fare × age scatter (colored by survival): survivors concentrate at higher fare levels across most ages, reinforcing that fare (as a proxy for class/cabin location) tracks with survival more clearly than age.
-Pair plot: confirms the story holistically — survivors cluster toward lower pclass and higher fare, while age shows weaker, noisier separation between outcome groups.
+**Class × sex bar chart:** women survived at far higher rates than men in every class, and the gap holds across all three classes, though survival for both sexes declines from 1st to 3rd class.
 
-Overall conclusion: class and fare are the dominant survival signals in this dataset, with sex compounding strongly on top of them; age contributes only a weak, secondary signal.
+**Age × survival box plot:** survivors skew slightly younger, consistent with children being prioritized, though the distributions overlap substantially — age alone is a weak predictor.
+
+**Fare × age scatter (colored by survival):** survivors concentrate at higher fare levels across most ages, reinforcing that fare (as a proxy for class/cabin location) tracks with survival more clearly than age.
+
+**Pair plot:** confirms the story holistically — survivors cluster toward lower pclass and higher fare, while age shows weaker, noisier separation between outcome groups.
+
+**Overall conclusion:** class and fare are the dominant survival signals in this dataset, with sex compounding strongly on top of them; age contributes only a weak, secondary signal.
 
 ## Exploratory standardization check (Task 6)
 
@@ -168,9 +213,9 @@ Built as a ColumnTransformer (median-impute + StandardScaler for numeric feature
 
 | Model | Accuracy | Precision | Recall | F1 | AUC |
 | --- | --- | --- | --- | --- | --- |
-| Logistic Regression | 0.8090 | 0.7833 | 0.6912 | 0.7344 | 0.8610 |
-| Decision Tree | 0.7697 | 0.6901 | 0.7206 | 0.7050 | 0.7541 |
-| Random Forest | 0.8202 | 0.7812 | 0.7353 | 0.7576 | 0.8179 |
+| Logistic Regression | 0.781 | 0.754 | 0.632 | 0.688 | 0.753 |
+| Decision Tree | 0.781 | 0.723 | 0.691 | 0.707 | 0.764 |
+| Random Forest | 0.787 | 0.742 | 0.676 | 0.708 | 0.766 |
 Imbalance Handling Comparison (Task 11)
 
 
@@ -178,21 +223,21 @@ Compared on Logistic Regression, train-fold class balance: 439 not-survived vs. 
 
 | Strategy | Precision | Recall | F1 |
 | --- | --- | --- | --- |
-| Baseline (none) | 0.7833 | 0.6912 | 0.7344 |
-| class_weight='balanced' | 0.7183 | 0.7500 | 0.7338 |
-| SMOTE (train fold only) | 0.7353 | 0.7353 | 0.7353 |
+| Baseline (no imbalance handling) | 0.754 | 0.632 | 0.688 |
+| class_weight='balanced' | 0.750 | 0.706 | 0.727 |
+| SMOTE (train dataset only) | 0.746 | 0.691 | 0.718 |
 
 
-Conclusion: SMOTE (applied to the training fold only, to avoid leakage) produced the highest F1 (0.7353). Given the moderate imbalance (~62/38), reweighting/resampling trades some precision for improved recall on the minority ("survived") class — SMOTE offered the best overall precision/recall trade-off here rather than optimizing either metric in isolation.
+Conclusion: SMOTE (applied to the training fold only, to avoid leakage) produced the highest F1 (0.727). Given the moderate imbalance (~62/38), reweighting/resampling trades some precision for improved recall on the minority ("survived") class — SMOTE offered the best overall precision/recall trade-off here rather than optimizing either metric in isolation.
 
 ## Hyperparameter Tuning (Task 12)
 
 
 GridSearchCV over Random Forest's n_estimators, max_depth, and max_features (5-fold CV, scored on F1):
 
-Best parameters: max_depth=None, max_features='sqrt', n_estimators=300
-Best CV F1 score: 0.7449
-OOB score (oob_score=True at construction): 0.8073
+Best parameters: max_depth=5, max_features='sqrt', n_estimators=100
+Best CV F1 score: 0.738
+OOB score (oob_score=True at construction): 0.806
 ## Regression Side-Task (Task 13)
 
 
@@ -200,13 +245,13 @@ Predicted fare from pclass, sex, age, sibsp, parch, embarked via multivariate li
 
 | Metric | Value |
 | --- | --- |
-| MAE | 21.14 |
-| RMSE | 41.75 |
-| R² | 0.3468 |
-| Adjusted R² | 0.3118 |
+| MAE | 23.781 |
+| RMSE | 47.835 |
+| R² | 0.142 |
+| Adjusted R² | 0.096 |
 
 
-Heteroscedasticity conclusion: the residual plot shows a fan-shaped spread that widens as predicted fare increases — residual std dev is 13.25 in the low-predicted-fare half vs. 57.25 in the high-predicted-fare half. This is evidence of heteroscedasticity (non-constant error variance across the range of predictions), rather than the random, constant-width scatter expected under homoscedasticity.
+Heteroscedasticity conclusion: the residual plot shows a fan-shaped spread that widens as predicted fare increases — residual std dev is 13.96 in the low-predicted-fare half vs. 66.57 in the high-predicted-fare half. This is evidence of heteroscedasticity (non-constant error variance across the range of predictions), rather than the random, constant-width scatter expected under homoscedasticity.
 
 ## Final Recommendation (Task 14)
 
@@ -217,19 +262,19 @@ Classifiers:
 
 | Model | Accuracy | Precision | Recall | F1 | AUC |
 | --- | --- | --- | --- | --- | --- |
-| Logistic Regression | 0.8090 | 0.7833 | 0.6912 | 0.7344 | 0.8610 |
-| Decision Tree | 0.7697 | 0.6901 | 0.7206 | 0.7050 | 0.7541 |
-| Random Forest | 0.8202 | 0.7812 | 0.7353 | 0.7576 | 0.8179 |
+| Logistic Regression | 0.781 | 0.754 | 0.632 | 0.688 | 0.753 |
+| Decision Tree | 0.781 | 0.723 | 0.691 | 0.707 | 0.764 |
+| Random Forest | 0.787 | 0.742 | 0.676 | 0.708 | 0.766 |
 
 
 Regression:
 
 | Model | MAE | RMSE | R² | Adjusted R² |
 | --- | --- | --- | --- | --- |
-| Linear Regression (fare) | 21.14 | 41.75 | 0.3468 | 0.3118 |
+| Linear Regression (fare) | 23.781 | 47.835 | 0.142 | 0.096 |
 
 
-Recommendation: Of the three classifiers, Random Forest is the strongest candidate to deploy, with F1 = 0.7576, accuracy = 0.8202, and AUC = 0.8179 on the held-out test set. It balances precision (0.7812) and recall (0.7353) better than the alternatives, which matters here since both false positives (wrongly predicting survival) and false negatives (missing an actual survivor) are costly in this domain. The tuned Random Forest from Task 12 (OOB score 0.8073) is a reasonable second choice if slightly more robustness to overfitting is valued over raw interpretability.
+Recommendation: Of the three classifiers, Random Forest is the strongest candidate to deploy, with F1 = 0.708, accuracy = 0.787, and AUC = 0.766 on the held-out test set. It balances precision (0.742) and recall (0.676) better than the alternatives, which matters here since both false positives (wrongly predicting survival) and false negatives (missing an actual survivor) are costly in this domain. The tuned Random Forest from Task 12 (OOB score 0.806) is a reasonable second choice if slightly more robustness to overfitting is valued over raw interpretability.
 
 ## Saved Pipeline (Task 15)
 

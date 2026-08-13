@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from pathlib import Path
 
 # Part - A: Profiling, Cleaning and the Data story
 # --------------------------------------------------------------
@@ -14,8 +15,9 @@ print("=" * 50)
 
 try:
     # Load the dataset once and save it to .csv file
+    base_dir = Path(__file__).resolve().parent
     df = sns.load_dataset("titanic")
-    df.to_csv("titanic.csv", index = False)
+    df.to_csv(base_dir/"output_files"/"titanic.csv", index = False)
     print("Titanic dataset from seaborn loaded and saved to titanic.csv (offline)\n")
 
     print("-----   Quick Summary   -----")
@@ -99,7 +101,7 @@ try:
     plt.tight_layout()
 
     # Save the figure
-    plt.savefig("Univariate_analysis.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"Univariate_analysis.png", dpi = 120)
 
     # Close the figure
     plt.close()
@@ -195,7 +197,7 @@ try:
 
     for pvalue in sorted(unique_pclass):
         # Create a boolean filter mask for current pclass
-        pclass_mask = df_clean["pclass"] = pvalue
+        pclass_mask = df_clean["pclass"] == pvalue
         # Calculate the average survival rate 
         pclass_survival_rate = df_clean.loc[pclass_mask, "survived"].mean()
         # No.of passengers that belong to that pclass
@@ -245,7 +247,7 @@ try:
     plt.tight_layout()
 
     # saving the figure
-    plt.savefig("Correlation_Heatmap.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"Correlation_Heatmap.png", dpi = 120)
 
     # close the figure
     plt.close()
@@ -312,7 +314,7 @@ try:
     # Adjusting the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("Survival_rate_by_pclass_and_sex.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"Survival_rate_by_pclass_and_sex.png", dpi = 120)
     # Close the figure
     plt.close()
     print("Survival_rate_by_pclass_and_sex.png saved successfully")
@@ -334,7 +336,7 @@ try:
     # Adjusting the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("Age_distribution_by_Survival_outcome.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"Age_distribution_by_Survival_outcome.png", dpi = 120)
     # Close the figure
     plt.close()
     print("Age_distribution_by_Survival_outcome.png saved successfully")
@@ -354,7 +356,7 @@ try:
     # Adjusting the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("Fare_vs_Age_scatterplot.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"Fare_vs_Age_scatterplot.png", dpi = 120)
     # Close the figure
     plt.close()
     print("Fare_vs_Age_scatterplot.png saved successfully")
@@ -373,7 +375,7 @@ try:
     # Adjusting the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("pairplot.png", dpi = 120)
+    plt.savefig(base_dir/"output_files"/"plots"/"pairplot.png", dpi = 120)
     # Close the figure
     plt.close()
     print("pairplot.png saved successfully")
@@ -427,7 +429,7 @@ try:
     # Adjust the layout
     plt.tight_layout()
     # Save the figure
-    plt.savefig("standardization_before_after.png", dpi=120)
+    plt.savefig(base_dir/"output_files"/"plots"/"standardization_before_after.png", dpi=120)
     # Close the figure
     plt.close()
     print("Saved standardization_before_after.png")
@@ -435,7 +437,7 @@ try:
     # --------------------------------------------------------------
     # Save the clean dataframe
     # --------------------------------------------------------------
-    df_clean.to_csv("titanic_clean.csv", index= False)
+    df_clean.to_csv(base_dir/"output_files"/"titanic_clean.csv", index= False)
     print("Saved successfully the clean Dataframe to 'titanic_clean.csv' file")
 
 except Exception as e:
