@@ -1,10 +1,53 @@
 # Support Assistant Module (`/support_assistant`)
 
+[![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Orchestration-1C3C3C)](https://www.langchain.com/langgraph)
+[![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Store-FF6B6B)](https://www.trychroma.com/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+
+
 A fully offline-gradable RAG (Retrieval-Augmented Generation) service
 for Zepto customer support: it embeds Zepto's own policy documents, routes
 each incoming query through a LangGraph pipeline, retrieves grounded context
 when needed, and returns a structured, schema-validated JSON answer via a
 FastAPI endpoint.
+
+## Project Overview
+
+This module demonstrates an end-to-end offline-gradable Retrieval-Augmented Generation (RAG) workflow for Zepto customer support.
+
+### Key Technologies
+
+- FastAPI for the API layer
+- LangGraph for query routing and workflow orchestration
+- ChromaDB for persistent vector retrieval
+- Sentence Transformers for local embeddings
+- Pydantic for structured response validation
+- Docker for containerized execution
+
+### High-Level Flow
+
+```text
+Customer Query
+      ↓
+Intent Classification
+      ↓
+ ┌────┴──────────────┐
+ ↓                   ↓
+Policy Question   General Question
+ ↓                   ↓
+Embedding +       Direct Answer
+ChromaDB Top-3
+ ↓
+Grounded Answer
+ └───────┬───────────┘
+         ↓
+ Pydantic Validation
+         ↓
+      FastAPI
+      POST /ask
+```
 
 ## Contents
 
@@ -197,6 +240,30 @@ retry logic (`call_actual_llm_with_llm_validation` in `graph.py`) that would
 retry up to 2 additional times with a corrective instruction before
 returning a clearly marked error response.
 
+## API Quick Reference
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/ask` | Submit a customer-support query and receive a structured JSON response |
+| `GET` | `/docs` | Open the FastAPI interactive Swagger UI |
+
+### Request Example
+
+```json
+{
+  "query": "What is your refund policy?"
+}
+```
+
+### Response Fields
+
+| Field | Description |
+|---|---|
+| `answer` | Generated or mock answer |
+| `intent` | `policy_question` or `general_question` |
+| `sources` | Retrieved document IDs |
+| `confidence` | Confidence value between 0 and 1 |
+
 ## Docker
 
 ```bash
@@ -222,3 +289,15 @@ functions (`classify_intent_with_llm`, `call_actual_llm_with_validation`,
 
 1. **Actual LLM via Groq's free tier** (`MOCK_LLM=0`) 
 2. **Deployment to Hugging Face Spaces**
+
+---
+
+
+### Visual outputs
+
+Module output screenshots are shown as below:
+
+- Localhost URL's JSON response
+- Support assistant's FastAPI UI
+- AskRequest & AskResponse (for query 1, query 2 and query 3)
+- Uvicorn server process terminal window output(Output while running the main.py file)
