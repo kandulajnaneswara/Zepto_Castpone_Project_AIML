@@ -40,21 +40,6 @@ analytics/
 └── README.md
 ```
 
-## Visual Outputs
-
-The module produces multiple analytical charts, including:
-
-- Univariate analysis
-- Correlation heatmap
-- Survival rate by class and sex
-- Age distribution by survival outcome
-- Fare vs. age scatter plot
-- Pair plot
-- Standardization before/after comparison
-- Decision tree visualization
-- ROC curves
-- Regression residual plot
-
 ---
 
 
@@ -156,8 +141,8 @@ Overall conclusion: class and fare are the dominant survival signals in this dat
 
 Z-score standardization (z = (x − mean) / std) was applied to age and fare as an EDA-stage sanity check only:
 
-| age (before) | age (after) | fare (before) | fare (after) |
-| --- | --- | --- | --- |
+| Score | age (before) | age (after) | fare (before) | fare (after) |
+| --- | --- | --- | --- | --- |
 mean	| 29.32 | 0.0000 | 32.10 |	0.0000 |
 std	| 12.98 | 1.0006 | 49.70 | 1.0006 |
 
@@ -256,12 +241,51 @@ The classification/regression feature sets exclude alive, class, who, adult_male
 
 Console output for both scripts (profiling summaries, query-equivalent printouts, evaluation tables) is produced directly by 01_eda.py and 02_modeling.py when run — redirect to a file (e.g. python 01_eda.py > eda_output.txt 2>&1) to capture it as submission evidence alongside this README.
 
-### Screenshots
+---
 
-The chart files listed in **Charts Produced** can be displayed directly in GitHub by adding image references after committing the PNG files to the repository.
+## Visual Outputs
 
-Example:
+The module produces multiple analytical charts, including:
 
-```markdown
-![ROC Curves](roc_curves.png)
-```
+- Univariate analysis
+
+  <img width="1000" height="640" alt="Univariate_analysis" src="https://github.com/user-attachments/assets/bedb3195-8de5-4709-8e65-9a7a3cb4579f" />
+  
+- Correlation heatmap
+
+  <img width="520" height="400" alt="Correlation_Heatmap" src="https://github.com/user-attachments/assets/13bd2b24-7f29-446c-8ba3-8bbdd7f7e578" />
+  
+- Survival rate by class and sex
+
+  <img width="520" height="400" alt="Survival_rate_by_pclass_and_sex" src="https://github.com/user-attachments/assets/51c37d91-742e-485a-9e66-3e10fd827272" />
+  
+- Age distribution by survival outcome
+  
+  <img width="520" height="400" alt="Age_distribution_by_Survival_outcome" src="https://github.com/user-attachments/assets/0a234dd8-f9e2-4ab4-bda6-87b4a4e8c4a4" />
+  
+- Fare vs. age scatter plot
+
+  <img width="520" height="400" alt="Fare_vs_Age_scatterplot" src="https://github.com/user-attachments/assets/ad47a45b-88d0-4909-8237-107b31887d8b" />
+  
+- Pair plot
+
+  <img width="664" height="580" alt="pairplot" src="https://github.com/user-attachments/assets/cabc9fb8-2413-46f1-a742-83d45e19e527" />
+
+- Standardization before/after comparison
+
+  <img width="1000" height="380" alt="standardization_before_after" src="https://github.com/user-attachments/assets/a88e0947-a502-4809-abe0-8dd118067605" />
+
+- Decision tree visualization
+
+  <img width="2080" height="880" alt="decision_tree_plot" src="https://github.com/user-attachments/assets/a86b3fe3-8c4d-4304-8f67-0dd27d5e7afc" />
+
+- ROC curves
+
+  <img width="520" height="400" alt="roc_curves" src="https://github.com/user-attachments/assets/64ba3ed1-654c-4ad3-a2a9-1d19c6ada4e1" />
+
+- Regression residual plot
+
+  <img width="520" height="400" alt="residual_plot" src="https://github.com/user-attachments/assets/b25af51a-d6a9-4f74-870a-79ea4dc4597a" />
+
+
+---
