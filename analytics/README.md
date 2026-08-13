@@ -4,6 +4,8 @@
 [![Pandas](https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Scikit--learn](https://img.shields.io/badge/Scikit--learn-Machine%20Learning-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![Matplotlib](https://img.shields.io/badge/Matplotlib-Visualization-11557C?logo=matplotlib&logoColor=white)](https://matplotlib.org/)
+[![Joblib](https://img.shields.io/badge/Joblib-FF6F00?style=flat&logo=python&logoColor=white)](https://joblib.readthedocs.io/)
+[![imbalanced-learn](https://img.shields.io/pypi/v/imbalanced-learn?label=imbalanced-learn&logo=python)](https://pypi.org/project/imbalanced-learn/)
 
 > **Project module:** End-to-end EDA, visualization, classification, model evaluation, tuning, and regression workflow on the Titanic dataset.
 
