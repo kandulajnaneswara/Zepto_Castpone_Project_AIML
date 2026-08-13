@@ -126,6 +126,8 @@ based on measured percentages:
 | deck | 77.22% | Encoded as its own "Unknown" category (not dropped) | Imputing a cabin deck at this rate would be almost entirely fabricated, but deck plausibly correlates with class/survival, so an informative "missing" category preserves that signal rather than discarding the column. |
 | age | 19.87% | Median-imputed | Falls in the 5–30% band; median is robust to outliers and keeps the numeric feature usable. |
 | embarked | 0.22% | Rows dropped | Under 5% — dropping of rows is safe. |
+
+
 embark_town	0.22%	Rows dropped    Under 5% — dropping of rows is safe.
 Outlier and skewness findings (Task 3)
 Age: 65 IQR outliers (bounds: [2.50, 54.50]).
@@ -136,8 +138,9 @@ Survival rate by sex: male 18.9%, female 74.0%.
 Survival rate by pclass: Class 1 = 62.6%, Class 2 = 47.3%, Class 3 = 24.2%.
 Survival rate by sex + pclass: female 1st class = 96.7%, female 2nd = 92.1%, female 3rd = 50.0%; male 1st = 36.9%, male 2nd = 15.7%, male 3rd = 13.5%.
 Correlation heatmap (6 columns: survived, pclass, age, sibsp, parch, fare). Top 2 strongest correlations: pclass ↔ fare (r = −0.548), then sibsp ↔ parch (r = 0.415). The pclass/fare relationship is expected — fare is largely a proxy for cabin class. The sibsp/parch relationship reflects that passengers traveling with siblings/spouses were also more likely to be traveling with parents/children (family groups).
-Multivariate data story (Task 5)
 
+
+Multivariate data story (Task 5)
 
 Five charts build a coherent survival narrative:
 
@@ -155,8 +158,8 @@ Z-score standardization (z = (x − mean) / std) was applied to age and fare as 
 
 | age (before) | age (after) | fare (before) | fare (after) |
 | --- | --- | --- | --- |
-mean	29.32	0.0000	32.10	0.0000
-std	12.98	1.0006	49.70	1.0006
+mean	| 29.32 | 0.0000 | 32.10 |	0.0000 |
+std	| 12.98 | 1.0006 | 49.70 | 1.0006 |
 
 
 Confirms the transform behaves as expected. This does not feed into the modeling pipeline — Part B performs its own train-only scaling (Task 8) to avoid leaking full-dataset statistics into the train/test split.
@@ -260,7 +263,5 @@ The chart files listed in **Charts Produced** can be displayed directly in GitHu
 Example:
 
 ```markdown
-![ROC Curves](Zepto_Castpone_Project_AIML/analytics/roc_curves.png)
+![ROC Curves](roc_curves.png)
 ```
-
-No screenshot files have been invented or added by this README update.
