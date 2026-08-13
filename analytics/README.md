@@ -24,20 +24,23 @@
 analytics/
 ├── 01_eda.py
 ├── 02_modeling.py
-├── titanic.csv
-├── titanic_clean.csv
 ├── titanic_best_pipeline.joblib
-├── Age_distribution_by_Survival_outcome.png
-├── Correlation_Heatmap.png
-├── decision_tree_plot.png
-├── Fare_vs_Age_scatterplot.png
-├── pairplot.png
-├── residual_plot.png
-├── roc_curves.png
-├── standardization_before_after.png
-├── Survival_rate_by_pclass_and_sex.png
-├── Univariate_analysis.png
-└── README.md
+├── README.md
+└── output_files
+  ├── titanic.csv
+  ├── titanic_clean.csv
+  └── plots
+        ├── Age_distribution_by_Survival_outcome.png
+        ├── Correlation_Heatmap.png
+        ├── decision_tree_plot.png
+        ├── Fare_vs_Age_scatterplot.png
+        ├── pairplot.png
+        ├── residual_plot.png
+        ├── roc_curves.png
+        ├── standardization_before_after.png
+        ├── Survival_rate_by_pclass_and_sex.png
+        └── Univariate_analysis.png
+
 ```
 
 ---
