@@ -61,13 +61,14 @@ support_assistant/
 ├── main.py                            FastAPI app (POST /ask)
 ├── requirements.txt                   Module dependencies
 ├── Dockerfile                         Container build for the FastAPI app
-├── FastAPI_UI.png                     Zepto Support Assistant FastAPI User Interface(UI)
-├── Localhost_URL_JSON_response.png    Pretty print JSON response of Localhost URL
-├── query_1.png                        AskRequest and AskResponse of Query 1 in POST
-├── query_2.png                        AskRequest and AskResponse of Query 2 in POST
-├── query_3.png                        AskRequest and AskResponse of Query 3 in POST
-├── Uvicorn_terminal_window.png        Uvicorn server process terminal output
-└── README.md                          
+├── README.md
+└── output_images
+      ├── FastAPI_UI.png                     Zepto Support Assistant FastAPI User Interface(UI)
+      ├── Localhost_URL_JSON_response.png    Pretty print JSON response of Localhost URL
+      ├── query_1.png                        AskRequest and AskResponse of Query 1 in POST
+      ├── query_2.png                        AskRequest and AskResponse of Query 2 in POST
+      ├── query_3.png                        AskRequest and AskResponse of Query 3 in POST
+      └── Uvicorn_terminal_window.png        Uvicorn server process terminal output                         
 ```
 
 `chromadb/` (the persisted vector store) is created automatically the
