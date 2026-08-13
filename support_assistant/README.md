@@ -218,8 +218,7 @@ requires no API key, secret, or network access to any LLM provider.
 **optional and ungraded** — The code has placeholder
 functions (`classify_intent_with_llm`, `call_actual_llm_with_validation`,
 `call_actual_llm_direct` in `graph.py`) that clearly raise
-`NotImplementedError` if `MOCK_LLM=0` is set, rather than silently
-pretending to work:
+`NotImplementedError` if `MOCK_LLM=0` is set.
 
 1. **Actual LLM via Groq's free tier** (`MOCK_LLM=0`) 
 2. **Deployment to Hugging Face Spaces**
