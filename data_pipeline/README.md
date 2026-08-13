@@ -22,6 +22,7 @@
 data_pipeline/
 ├── data_pipeline.py
 ├── books_toscrape.db
+├── SQL_vs_Pandas.png
 ├── output_file.csv
 └── Final_output_file.csv
 ```
