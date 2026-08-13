@@ -56,7 +56,8 @@ Data Pipeline module (/data_pipeline) covers the scraping, cleaning, and databas
 
 - data_pipeline.py — single script containing the full pipeline: scraping → cleaning → currency conversion → SQLite schema creation → data insertion → SQL queries → pandas verification.
 - books_toscrape.db — the SQLite database produced by running the script.
-- output_file.csv — intermediate CSV of the raw scraped
+- SQL_vs_Pandas - SQL and Pandas outputs for JOIN query are shown and matched.
+- output_file.csv — intermediate CSV of the raw scraped.
 - Final_output_file.csv — cleaned CSV data (saved before database loading).
 ## Install / Run Steps
 
@@ -145,5 +146,5 @@ Two of the query results above are read back into DataFrames using pd.read_sql(.
 
 Screenshot of the pipeline console output was displayed here,
 
+<img width="520" height="400" alt="image" src="https://github.com/user-attachments/assets/66d4f836-bd8a-4d6e-b6a2-3f89a638dfec" />
 
-![alt text](image.png)
