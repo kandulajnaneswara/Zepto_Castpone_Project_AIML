@@ -7,3 +7,10 @@ scikit-learn
 matplotlib
 joblib
 imbalanced-learn
+fastapi
+uvicorn
+pydantic
+chromadb
+sentence-transformers
+langgraph
+langchain-groq
